@@ -15,6 +15,7 @@ namespace Lockstep.Serialization {
 
     [System.Serializable]
     [SelfImplement]
+    //数据的 格式化（序列化， 反序列化），导出成为byte数据，解析成 所需要的数据
     public partial class BaseFormater : ISerializable, ISerializablePacket {
         public virtual void Serialize(Serializer writer){ }
 

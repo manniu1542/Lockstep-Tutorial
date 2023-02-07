@@ -3,8 +3,8 @@ using Lockstep.Math;
 using UnityEngine;
 
 namespace Lockstep.Logic {
-    [Serializable]
-    public abstract class UnityBaseManager : MonoBehaviour, IManager {
+    [Serializable] // mono的封装事件类
+    public abstract class UnityBaseManager : MonoBehaviour, IManager { 
         public virtual void DoAwake(){ }
         public virtual void DoStart(){ }
         public virtual void DoUpdate(LFloat deltaTime){ }

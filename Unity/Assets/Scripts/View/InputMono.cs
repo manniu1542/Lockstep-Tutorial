@@ -21,7 +21,7 @@ namespace LockstepTutorial {
         void Start(){
             floorMask = LayerMask.GetMask("Floor");
         }
-
+        //把该帧的相应的操作记录 成数据
         public void Update(){
             if (!IsReplay) {
                 float h = Input.GetAxisRaw("Horizontal");

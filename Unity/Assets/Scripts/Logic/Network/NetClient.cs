@@ -10,8 +10,9 @@ namespace Lockstep.Logic{
 
         private int count = 0;
         public int id;
-
+    
         public void Start(){
+            //初始化 网络 ，地址 ，派发 ，接收。
             net.Awake(NetworkProtocol.TCP);
             net.MessageDispatcher = this;
             net.MessagePacker = MessagePacker.Instance;

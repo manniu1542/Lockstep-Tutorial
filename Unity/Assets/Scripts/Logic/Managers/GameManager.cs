@@ -17,8 +17,13 @@ using Profiler = Lockstep.Util.Profiler;
 namespace LockstepTutorial {
     public class GameManager : UnityBaseManager {
         public static GameManager Instance { get; private set; }
+        /// <summary>
+        /// 玩家的输入的 数据
+        /// </summary>
         public static PlayerInput CurGameInput = new PlayerInput();
-
+        /// <summary>
+        /// 客户端模式
+        /// </summary>
         [Header("ClientMode")] public bool IsClientMode;
         public PlayerServerInfo ClientModeInfo = new PlayerServerInfo();
 
@@ -66,7 +71,9 @@ namespace LockstepTutorial {
 
         private void Awake(){
             Screen.SetResolution(1024, 768, false);
+            // 显示玩家的ping值组件
             gameObject.AddComponent<PingMono>();
+            //监控玩家的输入 组件
             gameObject.AddComponent<InputMono>();
 
             _Awake();
@@ -79,7 +86,9 @@ namespace LockstepTutorial {
         private void Update(){
             _DoUpdate();
         }
-
+        /// <summary>
+        /// 获取所有的 管理 类 ，并进行awake事件的调用
+        /// </summary>
         private void _Awake(){
 #if !UNITY_EDITOR
             IsReplay = false;
@@ -92,15 +101,18 @@ namespace LockstepTutorial {
 
 
         private void _Start(){
+            //处理，断线重连以及 客户端模式，
             DoStart();
             foreach (var mgr in _mgrs) {
                 mgr.DoStart();
             }
 
             Debug.Trace("Before StartGame _IdCounter" + BaseEntity.IdCounter);
+            //正常模式
             if (!IsReplay && !IsClientMode) {
                 netClient = new NetClient();
                 netClient.Start();
+                //发送加入房间的请求。 服务端那边判断房间 人数 大于2 就发送开始游戏的信号，客户端就调用StartGame
                 netClient.Send(new Msg_JoinRoom() {name = Application.dataPath});
             }
             else {
@@ -110,16 +122,18 @@ namespace LockstepTutorial {
 
 
         private void _DoUpdate(){
+            //满足开房条件 才开始游戏
             if (!_hasStart) return;
             remainTime += Time.deltaTime;
+            //每30毫秒 客户端刷新一次
             while (remainTime >= 0.03f) {
                 remainTime -= 0.03f;
-                //send input
+                //send input   发送 输入
                 if (!IsReplay) {
                     SendInput();
                 }
 
-
+                // 获取当前帧数据 如果 为空 ，则 返回 
                 if (GetFrame(curFrameIdx) == null) {
                     return;
                 }
@@ -176,6 +190,7 @@ namespace LockstepTutorial {
             }
 
             var playerInput = CurGameInput;
+            //发送 当前客户端的 逻辑帧 消息给服务器
             netClient?.Send(new Msg_PlayerInput() {
                 input = playerInput,
                 tick = inputTick
@@ -188,6 +203,7 @@ namespace LockstepTutorial {
 
 
         private void Step(){
+            //更新帧输入 操作 
             UpdateFrameInput();
             if (IsReplay) {
                 if (curFrameIdx < frames.Count) {
@@ -197,7 +213,7 @@ namespace LockstepTutorial {
             }
             else {
                 Recoder();
-                //send hash
+                //send hash   
                 netClient?.Send(new Msg_HashCode() {
                     tick = curFrameIdx,
                     hash = GetHash()
@@ -229,7 +245,7 @@ namespace LockstepTutorial {
             netClient?.Send(new Msg_QuitRoom());
             foreach (var mgr in _mgrs) {
                 mgr.DoDestroy();
-            }
+            }  
 
             if (!IsReplay) {
                 RecordHelper.Serialize(recordFilePath, this);
@@ -238,7 +254,7 @@ namespace LockstepTutorial {
             Debug.FlushTrace();
             DoDestroy();
         }
-
+        //获取所有的 mono的封装事件类 ，对这些类进行 事件管理 调用
         public override void DoAwake(){
             Instance = this;
             var mgrs = GetComponents<UnityBaseManager>();
@@ -251,6 +267,7 @@ namespace LockstepTutorial {
 
 
         public override void DoStart(){
+            //断线重连 处理 断线数据
             if (IsReplay) {
                 RecordHelper.Deserialize(recordFilePath, this);
             }
@@ -258,6 +275,7 @@ namespace LockstepTutorial {
             if (IsClientMode) {
                 playerCount = 1;
                 localPlayerId = 0;
+                //玩家数据模拟
                 playerServerInfos = new PlayerServerInfo[] {ClientModeInfo};
                 frames = new List<FrameInput>();
             }
