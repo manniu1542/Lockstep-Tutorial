@@ -5,6 +5,7 @@ namespace Lockstep.FakeServer{
     public class MessagePacker : IMessagePacker {
         public static MessagePacker Instance { get; } = new MessagePacker();
 
+        //解析消息
         public object DeserializeFrom(ushort opcode, byte[] bytes, int index, int count){
             var type = (EMsgType) opcode;
             switch (type) {
@@ -18,7 +19,7 @@ namespace Lockstep.FakeServer{
 
             return null;
         }
-
+        // 消息转字节
         public byte[] SerializeToByteArray(IMessage msg){
             return ((BaseFormater) msg).ToBytes();
         }

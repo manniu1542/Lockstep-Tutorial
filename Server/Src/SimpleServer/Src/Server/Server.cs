@@ -9,10 +9,11 @@ namespace Lockstep.FakeServer{
     public class Server : IMessageDispatcher {
         //network
         public static IPEndPoint serverIpPoint = NetworkUtil.ToIPEndPoint("127.0.0.1", 10083);
-        private NetOuterProxy _netProxy = new NetOuterProxy();
-
+        //网络外发代理人
+        private NetOuterProxy _netProxy = new NetOuterProxy(); 
+        
         //update
-        private const double UpdateInterval = 0.015; //frame rate = 30
+        private const double UpdateInterval = 0.015; //frame rate = 30    
         private DateTime _lastUpdateTimeStamp;
         private DateTime _startUpTimeStamp;
         private double _deltaTime;
@@ -31,12 +32,14 @@ namespace Lockstep.FakeServer{
         
 
         public void Start(){
-            _netProxy.MessageDispatcher = this;
-            _netProxy.MessagePacker = MessagePacker.Instance;
-            _netProxy.Awake(NetworkProtocol.TCP, serverIpPoint);
-            _startUpTimeStamp = _lastUpdateTimeStamp = DateTime.Now;
+            
+            _netProxy.MessageDispatcher = this;//消息派发员
+            _netProxy.MessagePacker = MessagePacker.Instance; //消息包装者
+            _netProxy.Awake(NetworkProtocol.TCP, serverIpPoint); // IP 端口号
+            _startUpTimeStamp = _lastUpdateTimeStamp = DateTime.Now; // 时间戳
         }
 
+        //继承的接口 。消息的派发
         public void Dispatch(Session session, Packet packet){
             ushort opcode = packet.Opcode();
             var message = session.Network.MessagePacker.DeserializeFrom(opcode, packet.Bytes, Packet.Index,
@@ -45,16 +48,17 @@ namespace Lockstep.FakeServer{
             //Log.sLog("Server " + msg);
             var type = (EMsgType) opcode;
             switch (type) {
-                case EMsgType.JoinRoom:
+                case EMsgType.JoinRoom://加入房间（主游戏）
                     OnPlayerConnect(session, message);
                     break;
-                case EMsgType.QuitRoom:
+                case EMsgType.QuitRoom://退出房间 （主游戏）
                     OnPlayerQuit(session, message);
                     break;
                 case EMsgType.PlayerInput:
                     OnPlayerInput(session, message);
                     break;
                 case EMsgType.HashCode:
+                    //客户端  每一帧的 帧号 计算一个hash ，把相应的hash发送给服务器，服务器收到相应的hash 就会有个匹配 判定， 如果有客户端的hash 与服务器不同 那么 就会log出来。
                     OnPlayerHashCode(session, message);
                     break;
             }
@@ -63,15 +67,17 @@ namespace Lockstep.FakeServer{
         public void Update(){
             var now = DateTime.Now;
             _deltaTime = (now - _lastUpdateTimeStamp).TotalSeconds;
-            if (_deltaTime > UpdateInterval) {
+            //   这边是当前帧 大于 上一帧 所间隔 15毫秒  跑一帧   1000/15 约等于66.66循环 但是 总 update是 间隔3毫秒运行一次，每次 都是 大于 15 ，3的6被 18毫秒 1000/18 约等于55.55循环 。 整体 大约就是 1帧跑60次 update， 
+            if (_deltaTime > UpdateInterval) { 
                 _lastUpdateTimeStamp = now;
-                _timeSinceStartUp = (now - _startUpTimeStamp).TotalSeconds;
+                _timeSinceStartUp = (now - _startUpTimeStamp).TotalSeconds;//服务器运行 总时间
                 DoUpdate();
             }
         }
 
         public void DoUpdate(){
             //check frame inputs
+            //当前只有 一个房间 。如果多个房间就创建 个数组 for循环
             var fDeltaTime = (float) _deltaTime;
             var fTimeSinceStartUp = (float) _timeSinceStartUp;
             _room?.DoUpdate(fTimeSinceStartUp, fDeltaTime);

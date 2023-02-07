@@ -11,7 +11,9 @@ namespace Lockstep.FakeServer {
         
         //map
         private Dictionary<int, int> _id2LocalId = new Dictionary<int, int>();
+        //当前帧玩家输入信息
         private Dictionary<int, PlayerInput[]> _tick2Inputs = new Dictionary<int, PlayerInput[]>();
+      
         private Dictionary<int, int[]> _tick2Hashes = new Dictionary<int, int[]>();
         
         //cur status
@@ -32,7 +34,7 @@ namespace Lockstep.FakeServer {
             CheckInput();
         }
 
-
+        //每个逻辑帧 检测输入
         private void CheckInput(){
             if (_tick2Inputs.TryGetValue(_curTick, out var inputs)) {
                 if (inputs != null) {
@@ -44,15 +46,15 @@ namespace Lockstep.FakeServer {
                         }
                     }
 
-                    if (isFullInput) {
+                    if (isFullInput) { //如果有 输入 ，通知房间内的所有玩家
                         BoardInputMsg(_curTick, inputs);
                         _tick2Inputs.Remove(_curTick);
-                        _curTick++;
+                        _curTick++;//有输入 服务器才会更新 逻辑帧 ？
                     }
                 }
             }
         }
-
+        //通知所有客户端，有客户端输入的数据
         private void BoardInputMsg(int tick, PlayerInput[] inputs){
             var frame = new Msg_FrameInput();
             frame.input = new FrameInput() {
@@ -93,6 +95,7 @@ namespace Lockstep.FakeServer {
             int localId = 0;
             if (!_id2LocalId.TryGetValue(useId, out localId)) return;
             PlayerInput[] inputs;
+            //玩家帧操作 消息 
             if (!_tick2Inputs.TryGetValue(msg.tick, out inputs)) {
                 inputs = new PlayerInput[MaxPlayerCount];
                 _tick2Inputs.Add(msg.tick, inputs);
@@ -101,7 +104,7 @@ namespace Lockstep.FakeServer {
             inputs[localId] = msg.input;
             CheckInput();
         }
-
+  
         public void OnPlayerHashCode(int useId, Msg_HashCode msg){
             int localId = 0;
             if (!_id2LocalId.TryGetValue(useId, out localId)) return;
