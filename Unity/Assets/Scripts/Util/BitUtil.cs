@@ -3,7 +3,7 @@ namespace Lockstep.Util {
         public static bool HasBit(int val, int idx){
             return (val & 1 << idx) != 0;
         }
-
+ 
         public static void SetBit(ref int val, int idx, bool isSet){
             if (isSet) {
                 val |= (1 << idx);
