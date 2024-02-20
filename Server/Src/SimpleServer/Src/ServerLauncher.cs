@@ -12,7 +12,7 @@ namespace Lockstep.FakeServer{
             OneThreadSynchronizationContext contex = new OneThreadSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(contex);
             Debug.Log("Main start");
-            try {
+            try {   
                 DoAwake();
                 while (true) {
                     try {
