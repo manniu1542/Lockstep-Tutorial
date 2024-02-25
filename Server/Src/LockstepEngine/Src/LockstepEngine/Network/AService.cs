@@ -8,7 +8,7 @@ namespace Lockstep.Network
 	{
 		TCP,
 	}
-
+	//一个网络服务，可基于 tcp或者udp
 	public abstract class AService :NetBase
 	{
 		public abstract AChannel GetChannel(long id);

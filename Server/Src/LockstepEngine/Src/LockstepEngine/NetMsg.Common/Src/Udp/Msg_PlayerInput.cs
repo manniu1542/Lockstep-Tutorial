@@ -1,4 +1,4 @@
-#define DEBUG_FRAME_DELAY
+#define DEBUG_FRAME_DELAY  
 using System.Collections.Generic;
 using Lockstep.Serialization;
 

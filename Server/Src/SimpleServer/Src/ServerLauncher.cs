@@ -8,7 +8,9 @@ namespace Lockstep.FakeServer{
         private static Server server;
 
         public static void Main(){
-            //let async functions call in this thread      把异步的消息 放进异步线程当中
+            //let async functions call in this thread      把异步的消息 放进 当前执行的 主线程当中执行。
+            //作用：UI 更新的线程安全性，简化异步编程模型，并提高代码可读性
+            //弊端：有时候消息 体过多，且很短， 那么会频繁调用 异步 传输，且要 记录上下文。这样反而 不能提升cpu的利用率。降低了 效率
             OneThreadSynchronizationContext contex = new OneThreadSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(contex);
             Debug.Log("Main start");

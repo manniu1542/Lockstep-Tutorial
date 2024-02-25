@@ -31,7 +31,7 @@ namespace Lockstep.Network {
             return id++;
         }
     }
-
+    //一个通道 
     public abstract class AChannel : NetBase {
         public ChannelType ChannelType { get; }
 

@@ -110,6 +110,7 @@ namespace LockstepTutorial {
             Debug.Trace("Before StartGame _IdCounter" + BaseEntity.IdCounter);
             //正常模式
             if (!IsReplay && !IsClientMode) {
+                //创建 网络 通信 
                 netClient = new NetClient();
                 netClient.Start();
                 //发送加入房间的请求。 服务端那边判断房间 人数 大于2 就发送开始游戏的信号，客户端就调用StartGame

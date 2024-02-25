@@ -32,7 +32,8 @@ namespace Lockstep.FakeServer{
         
 
         public void Start(){
-            
+            //网络消息初始化的设置
+
             _netProxy.MessageDispatcher = this;//消息派发员
             _netProxy.MessagePacker = MessagePacker.Instance; //消息包装者
             _netProxy.Awake(NetworkProtocol.TCP, serverIpPoint); // IP 端口号
@@ -58,7 +59,7 @@ namespace Lockstep.FakeServer{
                     OnPlayerInput(session, message);
                     break;
                 case EMsgType.HashCode:
-                    //客户端  每一帧的 帧号 计算一个hash ，把相应的hash发送给服务器，服务器收到相应的hash 就会有个匹配 判定， 如果有客户端的hash 与服务器不同 那么 就会log出来。
+                    //客户端  每一帧的 帧号 ，计算一个房间内所有 玩家 敌人等有状态值的 总值为 hash ，把相应的hash发送给服务器，服务器收到相应的hash 就会有个匹配 判定， 如果有客户端的 hash 与服务器不同 那么 就会log出来。
                     OnPlayerHashCode(session, message);
                     break;
             }
@@ -67,11 +68,11 @@ namespace Lockstep.FakeServer{
         public void Update(){
             var now = DateTime.Now;
             _deltaTime = (now - _lastUpdateTimeStamp).TotalSeconds;
-            //   这边是当前帧 大于 上一帧 所间隔 15毫秒  跑一帧   1000/15 约等于66.66循环 但是 总 update是 间隔3毫秒运行一次，每次 都是 大于 15 ，3的6被 18毫秒 1000/18 约等于55.55循环 。 整体 大约就是 1帧跑60次 update， 
+            //   这边是当前帧 大于 上一帧 所间隔 15毫秒  跑一帧   1000/15 约等于66.66循环 但是 总 update是 间隔3毫秒运行一次，每次 都是 大于 15 ，3的6被 18毫秒 1000/18 约等于55.55循环 。 整体 大约就是 1秒 跑60次 update， 
             if (_deltaTime > UpdateInterval) { 
                 _lastUpdateTimeStamp = now;
                 _timeSinceStartUp = (now - _startUpTimeStamp).TotalSeconds;//服务器运行 总时间
-                DoUpdate();
+                DoUpdate(); 
             }
         }
 
